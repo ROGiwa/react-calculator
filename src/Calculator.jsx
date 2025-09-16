@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import './app.css';
-
+import './App.css';
 
 function App() {
   const [display, setDisplay] = useState("");
@@ -31,16 +30,16 @@ function App() {
       { value: "+", valueKey: "+" },
     ],
     [
-      { value: "log", action: "log" },
-      { value: "cos", action: "cos" },
-      { value: "sin", action: "sin" },
-      { value: "tan", action: "tan" },
+      { value: "log", valueKey: "log" },
+      { value: "cos", valueKey: "cos" },
+      { value: "sin", valueKey: "sin" },
+      { value: "tan", valueKey: "tan" },
     ],
     [
-      { value: "√", action: "sqrt" },
+      { value: "√", valueKey: "√" },
       { value: "X²", action: "square" },
-      { value: "π", action: "pi" },
-      { value: "e", action: "exp" },
+      { value: "π", valueKey: "π" },
+      { value: "e", valueKey: "e" },
     ],
     [
       { value: "00", valueKey: "00" },
@@ -48,6 +47,24 @@ function App() {
       { value: "=", action: "calculate", className: "btn-op" },
     ],
   ];
+
+  
+  const parseExpression = (expr) => {
+    return expr
+      .replace(/x/g, "*")                      
+      .replace(/√(\d+)/g, "Math.sqrt($1)")     
+      .replace(/sin(\d+)/g, "Math.sin($1*Math.PI/180)") 
+      .replace(/cos(\d+)/g, "Math.cos($1*Math.PI/180)") 
+      .replace(/tan(\d+)/g, "Math.tan($1*Math.PI/180)") 
+      .replace(/log(\d+)/g, "Math.log($1)")
+      .replace(/(\d+)π/g, "$1*Math.PI")    
+      .replace(/π(\d+)/g, "Math.PI*$1")    
+      .replace(/π/g, "Math.PI") 
+      .replace(/(\d+)e/g, "$1*Math.E")    
+      .replace(/e(\d+)/g, "Math.E*$1")                
+      .replace(/e/g, "Math.E")                 
+      // .replace(/\^2/g, "**2");                 
+  };
 
   const handleAction = (action) => {
     try {
@@ -59,32 +76,20 @@ function App() {
           setDisplay(display.slice(0, -1));
           break;
         case "calculate":
-          setDisplay(eval(display))
-          break;
-        case "log":
-          setDisplay(Math.log(Number(display)));
-          break;
-        case "cos":
-          setDisplay(Math.cos(Number(display)));
-          break;
-        case "sin":
-          setDisplay(Math.sin(Number(display)));
-          break;
-        case "tan":
-          setDisplay(Math.tan(Number(display)));
-          break;
-        case "sqrt":
-          setDisplay(Math.sqrt(Number(display)));
+          const expr = parseExpression(display);
+          
+          setDisplay(eval(expr));
           break;
         case "square":
-          setDisplay(Math.pow(Number(display), 2));
+          if (!display) return;
+          try {
+              const squared = Math.pow(Number(display), 2);
+              setDisplay(squared.toString()); // show only result
+          } catch {
+              setDisplay("Error");
+          }
           break;
-        case "pi":
-          setDisplay(Math.PI);
-          break;
-        case "exp":
-          setDisplay(Math.exp(Number(display)));
-          break;
+
         default:
           break;
       }
@@ -108,7 +113,6 @@ function App() {
           <input
             type="text"
             value={display}
-            // readOnly
             className="form-control"
           />
         </div>
